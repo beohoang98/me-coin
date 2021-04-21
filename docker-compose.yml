@@ -1,0 +1,7 @@
+version: "3.6"
+
+services:
+  node:
+    image: node:lts-alpine
+    working_dir: /app
+
