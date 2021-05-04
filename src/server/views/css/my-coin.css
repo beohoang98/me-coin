@@ -1,0 +1,40 @@
+.paddingTopBottom {
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+.padTop-40 {
+    padding-top: 40px;
+}
+
+.mrTop-40 {
+    margin-top: 40px;
+}
+
+.break-word {
+    word-break: break-word;
+}
+
+.main-wrapper {
+    height: 100vh;  
+  }
+
+.min-height {
+    min-height: 500px;
+}
+
+.over-text {
+  white-space: nowrap; 
+  width: 300px; 
+  overflow: hidden; 
+  border: 1px solid #000000;
+}
+
+.botton1 {
+    width: 160px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}

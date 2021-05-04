@@ -1,7 +1,24 @@
 version: "3.6"
 
 services:
-  node:
-    image: node:lts-alpine
-    working_dir: /app
+  main_node:
+    build: .
+    networks: 
+      - coin_net
+    ipv4_address: 192.168.69.2
 
+  node:
+    depends_on: 
+      - main_node
+    build: .
+    networks:
+      - coin_net
+    command: node src/index.js 192.168.69.2:3000
+
+networks:
+  coin_net:
+    driver: bridge
+    ipam: 
+      config: 
+        - subnet: 192.168.69.0/24
+          gateway: 192.168.69.1

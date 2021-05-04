@@ -1,29 +1,27 @@
-const uuid = require("uuid/v4");
+const { v4: uuid } = require("uuid");
 const crypto = require("crypto");
+
+const DIFFICULTY = 4;
 
 function Blockchain(
   privateKey,
   publicKey,
   chain,
-  pendingTransactions,
-  currentNodeUrl
+  pendingTransactions
 ) {
   this.privateKey = privateKey;
   this.publicKey = publicKey;
 
   if (
     chain === undefined &&
-    pendingTransactions === undefined &&
-    currentNodeUrl === undefined
+    pendingTransactions === undefined
   ) {
     this.chain = [];
     this.pendingTransactions = [];
-    this.currentNodeUrl = currentNodeUrlSys;
     this.createNewBlock(100, "0", "0"); //Genesis block.
   } else {
     this.chain = chain;
     this.pendingTransactions = pendingTransactions;
-    this.currentNodeUrl = currentNodeUrl;
   }
 }
 
@@ -95,21 +93,16 @@ Blockchain.prototype.proofOfWork = function (
   currentBlockData
 ) {
   let nonce = 0;
-
   let hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
-  while (hash.substring(0, 4) !== "0000") {
-    //generate a new hash until the first 4 chars of the hash will be equals to '0000'.
+  while (!hash.startsWith("0".repeat(DIFFICULTY))) {
     nonce++;
-
     hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
   }
   return nonce;
 };
 
 Blockchain.prototype.chainIsValid = function (blockchain) {
-  let validChain = true;
-
-  for (var i = 1; i < blockchain.length; i++) {
+  for (let i = 1; i < blockchain.length; i++) {
     const currentBlock = blockchain[i];
     const prevBlock = blockchain[i - 1];
     const blockHash = this.hashBlock(
@@ -120,9 +113,12 @@ Blockchain.prototype.chainIsValid = function (blockchain) {
       },
       currentBlock["nonce"]
     );
-    if (blockHash.substring(0, 4) !== "0000") validChain = false;
-    if (currentBlock["previousBlockHash"] !== prevBlock["hash"])
-      validChain = false;
+    if (!blockHash.startsWith("0".repeat(DIFFICULTY))) {
+      return false;
+    }
+    if (currentBlock["previousBlockHash"] !== prevBlock["hash"]) {
+      return false;
+    }
   }
 
   //check genesis block validation
@@ -138,35 +134,28 @@ Blockchain.prototype.chainIsValid = function (blockchain) {
     !correctHash ||
     !correctTransactions
   )
-    validChain = false;
+    return false;
 
-  return validChain;
+  return true;
 };
 
 Blockchain.prototype.getBlock = function (blockHash) {
-  let correctBlock = null;
-  this.chain.forEach((block) => {
-    if (block.hash === blockHash) correctBlock = block;
-  });
-  return correctBlock;
+  return this.chain.find((block) => block.hash === blockHash);
 };
 
 Blockchain.prototype.getTransaction = function (transactionId) {
-  let correctTransaction = null;
-  let correctBlock = null;
-
-  this.chain.forEach((block) => {
-    block.transactions.forEach((transaction) => {
-      if (transaction.transactionId === transactionId) {
-        correctTransaction = transaction;
-        correctBlock = block;
-      }
-    });
-  });
-
+  for (const block of this.chain) {
+    for (const transaction of block.transactions) {
+      if (transaction.transactionId !== transactionId) continue;
+      return {
+        transaction,
+        block,
+      };
+    }
+  }
   return {
-    transaction: correctTransaction,
-    block: correctBlock,
+    transaction: null,
+    block: null,
   };
 };
 

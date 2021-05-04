@@ -1,0 +1,7 @@
+keys/*
+node_modules
+.vscode
+data
+*.md
+Dockerfile
+.dockerignore
